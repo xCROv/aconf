@@ -4,13 +4,13 @@
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
 
-#Configs
+# Configs
 atlas_conf="/data/local/tmp/atlas_config.json"
 atlas_log="/data/local/tmp/atlas.log"
 aconf_log="/sdcard/aconf.log"
 monitor_log="/sdcard/atlas_monitor.log"
 
-# initial sleep for reboot
+# Initial sleep for reboot
 sleep 120
 
 while true
@@ -19,10 +19,10 @@ while true
       echo "`date +%Y-%m-%d_%T` ATVdetailsSender: sender stopped" >> $logfile && exit 1
     fi
 
-# remove windows line ending
+# Remove windows line ending
     dos2unix $atlas_conf
 
-# generic
+# Generic
     RPL=$(($atvdetails_interval/60))
     deviceName=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceName' | awk -F ":" '{ print $2 }' | tr -d \"})
     arch=$(uname -m)
@@ -41,7 +41,7 @@ while true
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
-# atv performance
+# ATV Performance
     memTot=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
@@ -57,22 +57,22 @@ while true
     diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
     diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
     numPogo=$(ls -l /sbin/.magisk/mirror/data/app/ | grep com.nianticlabs.pokemongo | wc -l)
-# aconf.log
+# Aconf.log
     reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
-# atlas config
+# Atlas config
     authBearer=$(cat $atlas_conf | tr , '\n' | grep -w 'authBearer' | awk -F ":" '{ print $2 }' | tr -d \"})
     token=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceAuthToken' | awk -F ":" '{ print $2 }' | tr -d \"})
     email=$(cat $atlas_conf | tr , '\n' | grep -w 'email' | awk -F ":" '{ print $2 }' | tr -d \"})
     rdmUrl=$(cat $atlas_conf | tr , '\n' | grep -w 'rdmUrl' | awk -F "\"" '{ print $4 }')
     onBoot=$(cat $atlas_conf | tr , '\n' | grep -w 'runOnBoot' | awk -F ":" '{ print $2 }' | tr -d \"})
-# atlas.log
+# Atlas.log
     a_pogoStarted=$(grep 'Launched Pokemon Go' $atlas_log | wc -l)
     a_injection=$(grep 'Injected successfully' $atlas_log | wc -l)
     a_ptcLogin=$(grep 'Logged in using ptc' $atlas_log | wc -l)
     a_atlasCrash=$(grep 'Agent has crashed or stopped responding' $atlas_log | wc -l)
     a_rdmError=$(grep 'Could not send heartbeat' $atlas_log | wc -l)
 
-# monitor.log
+# Monitor.log
     m_noInternet=$(grep 'No internet' $monitor_log | wc -l)
     m_noConfig=$(grep 'atlas_config.json does not exist or is empty' $monitor_log | wc -l)
     m_noLicense=$(grep 'Device Lost Atlas License' $monitor_log | wc -l)
@@ -83,7 +83,7 @@ while true
     m_noFocus=$(grep 'Something is not right! Pogo is not in focus. Killing pogo and clearing junk' $monitor_log | wc -l)
     m_unknown=$(grep 'Something happened! Some kind of error' $monitor_log | wc -l)
 
-#send data
+# Send data
     curl -k -X POST $atvdetails_receiver_host:$atvdetails_receiver_port/webhook -H "Accept: application/json" -H "Content-Type: application/json" --data-binary @- <<DATA
 {
     "WHType": "ATVDetails",
